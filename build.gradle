@@ -20,7 +20,6 @@ repositories{
         name 'm2-dv8tion'
         url 'https://m2.dv8tion.net/releases'
     }
-    jcenter()
 }
 
 ext{
@@ -32,6 +31,7 @@ dependencies{
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:server:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:annotations:$mindustryVersion"
+    implementation 'org.json:json:20210307'
 }
 
 jar{
