@@ -40,7 +40,7 @@ jar{
     }
 
     from(rootDir){
-        include "plugin.json"
+        include "mod.json"
     }
 }
 
