@@ -2,7 +2,7 @@
 # GlobalImageBan
 A mindustry plugin that checks if a image is banned. No more nsfw (hopefully)
 
-**ATTENTION: We need people to submit NSFW Schematics in the [BMI](https://discord.gg/v7SyYd2D3y) server. The more submissions we get the more NSFW get blocked.**
+**ATTENTION: We need people to submit NSFW Schematics in the [BMI](https://discord.gg/v7SyYd2D3y) server (Only 18+ Allowed). The more submissions we get the more NSFW get blocked.**
 
 ## Installation Guide
 1. Download the latest mod verion in [#Releases](https://github.com/L0615T1C5-216AC-9437/MaxRateCalculator/releases).  
