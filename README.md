@@ -24,3 +24,5 @@ If the hash is banned, two things can happen detepding on settings:
 ## Commands  
 `gibtcs`: Toggles gib_complexSearch On/Off  
 `gibtkoh`: Toggles gib_kickOnHit On/Off  
+## RPC Info
+Rate Limit: A maximum of 100 Requests every 30s
