@@ -69,7 +69,7 @@ public class Main extends Plugin {
                                 }
                                 //send message to everyone but the player building it
                                 for (Player p : Groups.player) {
-                                    if (p != player) p.sendMessage("[scarlet]> " + colorless(player.name) + " [scarlet]built banned image (prob NSFW) @ (" + event.tile.x + "," + event.tile.y + ")\n[gray]ID:" + json.get("id") + " | bid:" + json.get("BID"));
+                                    if (p != player) p.sendMessage("[scarlet]> " + colorless(player.name) + " [scarlet]built banned image (prob NSFW) @ (" + event.tile.x + "," + event.tile.y + ")\n[gray]ID:" + json.get("id") + " | bid:" + json.get("bid"));
                                 }
                                 break; //stop checking if hit
                             }
@@ -91,6 +91,7 @@ public class Main extends Plugin {
         handler.register("gibtkoh", "Toggle Kick on Hit", args -> {
             Core.settings.put("gib_kickOnHit", !Core.settings.getBool("gib_kickOnHit", false));
             Log.info("gib_kickOnHit set to " + Core.settings.getBool("gib_kickOnHit", false));
+
         });
     }
 
