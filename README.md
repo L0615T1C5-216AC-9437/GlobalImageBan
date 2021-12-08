@@ -1,4 +1,5 @@
 ![Discord](https://img.shields.io/discord/917595056075071488)
+[![Github All Releases](https://img.shields.io/github/downloads/L0615T1C5-216AC-9437/GlobalImageBan/total.svg)]()
 # GlobalImageBan
 A mindustry plugin that checks if a image is banned. No more nsfw (hopefully)
 
