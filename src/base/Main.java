@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -47,7 +48,7 @@ public class Main extends Plugin {
                             String b64Hash = Base64.getEncoder().encodeToString(hash);
                             Log.debug(b64Hash);
                             //http request
-                            URL url = new URL("http://c-n.ddns.net:9999/bmi/check/" + b64Hash);
+                            URL url = new URL("http://c-n.ddns.net:9999/bmi/check/?b64hash=" + URLEncoder.encode(b64Hash, "UTF-8"));
                             HttpURLConnection con = (HttpURLConnection) url.openConnection();
                             con.setConnectTimeout(1000);
                             con.setRequestMethod("GET");
