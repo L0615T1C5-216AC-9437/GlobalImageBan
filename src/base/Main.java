@@ -150,6 +150,7 @@ public class Main extends Plugin {
     private static void handleHit(Player player, Tile t, JSONObject json) {
         if (Core.settings.getBool("gib_kickOnHit", false)) {
             player.con.kick("[scarlet]Built banned logic image\n[lightgray]ID: " + json.get("id") + "\nBID: " + json.get("bid"), 3 * 60 * 60 * 1000L);
+            Log.info(colorless(player.name) + " was kicked for placing banned image! BID: " + json.get("bid") + " ID: " + json.get("id"));
         }
         if (lastBroadcast < System.currentTimeMillis()) {
             lastBroadcast = System.currentTimeMillis() + Core.settings.getInt("gib_BroadcastTimeout", 2000);
