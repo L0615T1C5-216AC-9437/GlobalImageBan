@@ -140,6 +140,14 @@ public class Main extends Plugin {
                 System.out.println("Must be a number!");
             }
         });
+        handler.register("gibckd", "<minutes>", "Configure Kick Duration", args -> {
+            if (Strings.canParseInt(args[0])) {
+                Core.settings.put("gib_KickDuration", Strings.parseInt(args[0]));
+                System.out.println("Connection Timeout set to " + args[0].trim() + "ms");
+            } else {
+                System.out.println("Must be a number!");
+            }
+        });
     }
 
     @Override
@@ -149,7 +157,7 @@ public class Main extends Plugin {
 
     private static void handleHit(Player player, Tile t, JSONObject json) {
         if (Core.settings.getBool("gib_kickOnHit", false)) {
-            player.con.kick("[scarlet]Built banned logic image\n[lightgray]ID: " + json.get("id") + "\nBID: " + json.get("bid"), 3 * 60 * 60 * 1000L);
+            player.con.kick("[scarlet]Built banned logic image\n[lightgray]ID: " + json.get("id") + "\nBID: " + json.get("bid") + "\n\n[lightgray]If you think this was a error please go to discord.gg/v7SyYd2D3y and report the ID and BID", Core.settings.getInt("gib_KickDuration", 3 * 60) * 60 * 1000L);
             Log.info(colorless(player.name) + " was kicked for placing banned image! BID: " + json.get("bid") + " ID: " + json.get("id"));
         }
         if (lastBroadcast < System.currentTimeMillis()) {
