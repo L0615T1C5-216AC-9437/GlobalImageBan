@@ -25,6 +25,9 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
+import static arc.util.Log.err;
+import static arc.util.Log.info;
+
 public class Main extends Plugin {
     private static MessageDigest messageDigest;
     private static final HashMap<String, BMIData> cache = new HashMap<>();
@@ -65,9 +68,8 @@ public class Main extends Plugin {
                 lb.configure(event.config);
                 //check if draws to display
                 if (lb.code.contains("drawflush display")) {
-                    String[] check = Core.settings.getBool("gib_complexSearch", false) ? lb.code.split("drawflush display.\n") : new String[]{lb.code};
+                    String[] check = Config.ComplexSearch.bool() ? lb.code.split("drawflush display.\n") : new String[]{lb.code};
                     CompletableFuture.runAsync(() -> {
-
                         for (String c : check) {
                             try {
                                 byte[] hash = messageDigest.digest(c.getBytes(StandardCharsets.UTF_8));
@@ -82,7 +84,7 @@ public class Main extends Plugin {
                                     //http request
                                     URL url = new URL("http://c-n.ddns.net:9999/bmi/check/?b64hash=" + URLEncoder.encode(b64Hash, "UTF-8"));
                                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                                    con.setConnectTimeout(Core.settings.getInt("gib_ConnectionTimeout", 1000));
+                                    con.setConnectTimeout(Config.ConnectionTimeout.num());
                                     con.setRequestMethod("GET");
                                     con.setDoOutput(true);
                                     con.setRequestProperty("Content-Type", "application/json");
@@ -116,39 +118,118 @@ public class Main extends Plugin {
 
     @Override
     public void registerServerCommands(CommandHandler handler) {
-        handler.register("gibtcs", "Toggle Complex Search", args -> {
-            Core.settings.put("gib_complexSearch", !Core.settings.getBool("gib_complexSearch", false));
-            Log.info("gib_kickOnHit set to " + Core.settings.getBool("gib_complexSearch", false));
-        });
-        handler.register("gibtkoh", "Toggle Kick on Hit", args -> {
-            Core.settings.put("gib_kickOnHit", !Core.settings.getBool("gib_kickOnHit", false));
-            Log.info("gib_kickOnHit set to " + Core.settings.getBool("gib_kickOnHit", false));
+        handler.register("gibconfig", "[name] [value...]", "Configure server settings.", arg -> {
+            if(arg.length == 0){
+                info("All config values:");
+                for(Config c : Config.all){
+                    info("&lk| @: @", c.name(), "&lc&fi" + c.get());
+                    info("&lk| | &lw" + c.description);
+                    info("&lk|");
+                }
+                Log.info("use the command with the value set to \"default\" in order to use the default value.");
+                return;
+            }
 
-        });
-        handler.register("gibcbt", "<milliseconds>", "Configure Broadcast Timeout", args -> {
-            if (Strings.canParseInt(args[0])) {
-                Core.settings.put("gib_BroadcastTimeout", Strings.parseInt(args[0]));
-                System.out.println("Broadcast Timeout set to " + args[0].trim() + "ms");
-            } else {
-                System.out.println("Must be a number!");
+            try{
+                Config c = Config.valueOf(arg[0]);
+                if(arg.length == 1){
+                    info("'@' is currently @.", c.name(), c.get());
+                }else{
+                    if (arg[1].equals("default")) {
+                        c.set(c.defaultValue);
+                    } else if(c.isBool()){
+                        c.set(arg[1].equals("on") || arg[1].equals("true"));
+                    }else if(c.isNum()){
+                        try{
+                            c.set(Integer.parseInt(arg[1]));
+                        }catch(NumberFormatException e){
+                            err("Not a valid number: @", arg[1]);
+                            return;
+                        }
+                    }else if(c.isString()){
+                        c.set(arg[1].replace("\\n", "\n"));
+                    }
+
+                    info("@ set to @.", c.name(), c.get());
+                    Core.settings.forceSave();
+                }
+            }catch(IllegalArgumentException e){
+                err("Unknown config: '@'. Run the command with no arguments to get a list of valid configs.", arg[0]);
             }
         });
-        handler.register("gibcct", "<milliseconds>", "Configure Connection Time Out", args -> {
-            if (Strings.canParseInt(args[0])) {
-                Core.settings.put("gib_ConnectionTimeout", Strings.parseInt(args[0]));
-                System.out.println("Connection Timeout set to " + args[0].trim() + "ms");
-            } else {
-                System.out.println("Must be a number!");
-            }
+        handler.register("gibclearcache", "Clears cached hashes", args -> {
+            Log.info(cache.size() + " entries removed.");
+            cache.clear();
         });
-        handler.register("gibckd", "<minutes>", "Configure Kick Duration", args -> {
-            if (Strings.canParseInt(args[0])) {
-                Core.settings.put("gib_KickDuration", Strings.parseInt(args[0]));
-                System.out.println("Connection Timeout set to " + args[0].trim() + "ms");
-            } else {
-                System.out.println("Must be a number!");
-            }
-        });
+    }
+
+    public enum Config {
+        ComplexSearch("Whether to perform a complex search on code. This prevents easy bypass of scan by editing few lines code.", false, "ComplexSearch"),
+        NudityOnly("Whether the server check for nudity only, or nudity and erotic images", false, "NudityOnly"),
+        KickBanMessage("What message to send when user is kicked/banned. BID, ID and BMI invite will still be sent.", "[scarlet]Built banned logic image", "KickBanMessage"),
+        BanOnHit("Whether to ban players when a banned mindustry image is detected. Overrides KickOnHit if true.", false, "BanOnHit"),
+        KickOnHit("Whether to kick players when a banned mindustry image is detected.", false, "KickOnHit"),
+        BroadcastTimeout("How often, in millis, the server will broadcast when a placer is building nsfw.", 2000, "BroadcastTimeout"),
+        ConnectionTimeout("How long, in millis, the server will wait for a http response before giving up.", 1000, "ConnectionTimeout"),
+        KickDuration("How many minutes the player will kick be for.", 3 * 60, "KickDuration");
+
+        public static final Config[] all = values();
+
+        public final Object defaultValue;
+        public final String key, description;
+        final Runnable changed;
+
+        Config(String description, Object def){
+            this(description, def, null, null);
+        }
+
+        Config(String description, Object def, String key){
+            this(description, def, key, null);
+        }
+
+        Config(String description, Object def, Runnable changed){
+            this(description, def, null, changed);
+        }
+
+        Config(String description, Object def, String key, Runnable changed){
+            this.description = description;
+            this.key = "gib_" + (key == null ? name() : key);
+            this.defaultValue = def;
+            this.changed = changed == null ? () -> {} : changed;
+        }
+
+        public boolean isNum(){
+            return defaultValue instanceof Integer;
+        }
+
+        public boolean isBool(){
+            return defaultValue instanceof Boolean;
+        }
+
+        public boolean isString(){
+            return defaultValue instanceof String;
+        }
+
+        public Object get(){
+            return Core.settings.get(key, defaultValue);
+        }
+
+        public boolean bool(){
+            return Core.settings.getBool(key, (Boolean)defaultValue);
+        }
+
+        public int num(){
+            return Core.settings.getInt(key, (Integer)defaultValue);
+        }
+
+        public String string(){
+            return Core.settings.getString(key, (String)defaultValue);
+        }
+
+        public void set(Object value){
+            Core.settings.put(key, value);
+            changed.run();
+        }
     }
 
     @Override
@@ -157,12 +238,20 @@ public class Main extends Plugin {
     }
 
     private static void handleHit(Player player, Tile t, JSONObject json) {
-        if (Core.settings.getBool("gib_kickOnHit", false)) {
-            player.con.kick("[scarlet]Built banned logic image\n[lightgray]ID: " + json.get("id") + "\nBID: " + json.get("bid") + "\n\n[lightgray]If you think this was a error please go to discord.gg/v7SyYd2D3y and report the ID and BID", Core.settings.getInt("gib_KickDuration", 3 * 60) * 60 * 1000L);
-            Log.info(colorless(player.name) + " was kicked for placing banned image! BID: " + json.get("bid") + " ID: " + json.get("id"));
+        //check if we are in nudity only mode and if the image contains nudity
+        if (Config.NudityOnly.bool() && !json.getBoolean("nudity")) {
+            Log.debug("Hash found but not marked as nudity.");
+            return;
         }
+        //check if we kick players upon hit
+        if (Config.KickOnHit.bool()) {
+            player.con.kick(Config.KickBanMessage.string() + "\n[lightgray]ID: " + json.get("id") + "\nBID: " + json.get("bid") + "\n\n[lightgray]If you think this was a error please go to discord.gg/v7SyYd2D3y and report the ID and BID", Config.KickDuration.num() * 60 * 1000L);
+            Log.warn(colorless(player.name) + " was kicked for placing banned image! BID: " + json.get("bid") + " ID: " + json.get("id"));
+            Log.info("If you think this was an error, please go report it at discord.hh/v7SyYd2D3y");
+        }
+        //check if we can broadcast the message again
         if (lastBroadcast < System.currentTimeMillis()) {
-            lastBroadcast = System.currentTimeMillis() + Core.settings.getInt("gib_BroadcastTimeout", 2000);
+            lastBroadcast = System.currentTimeMillis() + Config.BroadcastTimeout.num() + Config.BroadcastTimeout.num();
             //send message to everyone but the player building it
             for (Player p : Groups.player) {
                 if (p != player)
