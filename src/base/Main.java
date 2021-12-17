@@ -65,8 +65,9 @@ public class Main extends Plugin {
                 lb.configure(event.config);
                 //check if draws to display
                 if (lb.code.contains("drawflush display")) {
+                    String[] check = Core.settings.getBool("gib_complexSearch", false) ? lb.code.split("drawflush display.\n") : new String[]{lb.code};
                     CompletableFuture.runAsync(() -> {
-                        String[] check = Core.settings.getBool("gib_complexSearch", false) ? lb.code.split("drawflush display.\n") : new String[]{lb.code};
+
                         for (String c : check) {
                             try {
                                 byte[] hash = messageDigest.digest(c.getBytes(StandardCharsets.UTF_8));
@@ -97,7 +98,7 @@ public class Main extends Plugin {
                                         in.close();
                                         JSONObject json = new JSONObject(content.toString());
                                         cache.put(b64Hash, new BMIData(httpResponse, json));
-                                        handleHit(player, event.tile, json);
+                                        Core.app.post(() -> handleHit(player, event.tile, json));
                                         break; //stop checking if hit
                                     } else {
                                         cache.put(b64Hash, new BMIData(httpResponse, new JSONObject()));
