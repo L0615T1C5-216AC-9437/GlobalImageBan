@@ -25,9 +25,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
-import static arc.util.Log.err;
-import static arc.util.Log.info;
-
 public class Main extends Plugin {
     private static final int toHours = 60 * 60 * 1000;
 
@@ -131,11 +128,11 @@ public class Main extends Plugin {
     public void registerServerCommands(CommandHandler handler) {
         handler.register("gibconfig", "[name] [value...]", "Configure server settings.", arg -> {
             if (arg.length == 0) {
-                info("All config values:");
+                Log.info("All config values:");
                 for (Config c : Config.all) {
-                    info("&lk| @: @", c.name(), "&lc&fi" + c.get());
-                    info("&lk| | &lw" + c.description);
-                    info("&lk|");
+                    Log.info("&lk| @: @", c.name(), "&lc&fi" + c.get());
+                    Log.info("&lk| | &lw" + c.description);
+                    Log.info("&lk|");
                 }
                 Log.info("use the command with the value set to \"default\" in order to use the default value.");
                 return;
@@ -144,7 +141,7 @@ public class Main extends Plugin {
             try {
                 Config c = Config.valueOf(arg[0]);
                 if (arg.length == 1) {
-                    info("'@' is currently @.", c.name(), c.get());
+                    Log.info("'@' is currently @.", c.name(), c.get());
                 } else {
                     if (arg[1].equals("default")) {
                         c.set(c.defaultValue);
@@ -154,18 +151,18 @@ public class Main extends Plugin {
                         try {
                             c.set(Integer.parseInt(arg[1]));
                         } catch (NumberFormatException e) {
-                            err("Not a valid number: @", arg[1]);
+                            Log.err("Not a valid number: @", arg[1]);
                             return;
                         }
                     } else if (c.isString()) {
                         c.set(arg[1].replace("\\n", "\n"));
                     }
 
-                    info("@ set to @.", c.name(), c.get());
+                    Log.info("@ set to @.", c.name(), c.get());
                     Core.settings.forceSave();
                 }
             } catch (IllegalArgumentException e) {
-                err("Unknown config: '@'. Run the command with no arguments to get a list of valid configs.", arg[0]);
+                Log.err("Unknown config: '@'. Run the command with no arguments to get a list of valid configs.", arg[0]);
             }
         });
         handler.register("gibclearcache", "Clears cached hashes", args -> {
