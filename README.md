@@ -21,9 +21,24 @@ If the hash is banned, two things can happen detepding on settings:
 
 ## Settings  
 `gib_complexSearch` (Boolean): If true, each drawflush will be checked individually.  
-`gib_kickOnHit` (Boolean): If true, player building banned image will be kicked immediately.  
+default: `false`
+`gib_NudityOnly` (Boolean): If true, will only respond to code flagged as containing nunity.  
+default: `false`  
+`gib_KickBanMessage` (String): What message to send before the `ID: ... \nBID: ... \nIf you think this was a error...` message.  
+default: `[scarlet]Built banned logic image`
+`gib_BanOnHit` (Boolean): If true, will ban user immediately upon hit. Will contain gib_KickBanMessage, ID, BID and link to BMI.  
+default: `false`
+`gib_KickOnHit` (Boolean): If true, will kick user immediately upon hit. Will contain gib_KickBanMessage, ID, BID and link to BMI.  
+default: `false`
+`gib_BroadcastTimeout` (Int): How often, in millis, the server will broadcast when a placer is building nsfw.  
+default: `2000`
+`gib_ConnectionTimeout` (Int): How long, in millis, the server will wait for a http response before giving up. Increase if you have a very high ping to c-n.ddns.net  
+default: `1000`
+*Note: c-n.ddns.net does not respond to pings.*
+`gib_KickDuration` (Int): How many minutes the player will kick be for.
+default: 
 ## Commands  
-`gibtcs`: Toggles gib_complexSearch On/Off  
-`gibtkoh`: Toggles gib_kickOnHit On/Off  
+`gibconfig`: Same as `config` but for GIB settings.  
+`gibclearcache`: Clears the hash cache
 ## RPC Info
 Rate Limit: A maximum of 100 Requests every 30s
