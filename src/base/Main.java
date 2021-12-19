@@ -29,9 +29,13 @@ import static arc.util.Log.err;
 import static arc.util.Log.info;
 
 public class Main extends Plugin {
+    private static final int toHours = 60 * 60 * 1000;
+
     private static MessageDigest messageDigest;
     private static final HashMap<String, BMIData> cache = new HashMap<>();
+    private static long cacheExpireCheck = System.currentTimeMillis() + toHours;
     private static class BMIData {
+
         public final int httpResponse;
         public final JSONObject data;
         private final long expiration;
@@ -39,7 +43,7 @@ public class Main extends Plugin {
         public BMIData(int httpResponse, JSONObject data) {
             this.httpResponse = httpResponse;
             this.data = data;
-            this.expiration = System.currentTimeMillis() + (24 * 60 * 60 * 1000L);
+            this.expiration = System.currentTimeMillis() + (24 * toHours);
         }
 
         public boolean expired() {
@@ -68,6 +72,12 @@ public class Main extends Plugin {
                 lb.configure(event.config);
                 //check if draws to display
                 if (lb.code.contains("drawflush display")) {
+                    //expire old cache
+                    if (cacheExpireCheck < System.currentTimeMillis()) {
+                        cacheExpireCheck = System.currentTimeMillis() + toHours;
+                        cache.entrySet().removeIf(e -> e.getValue().expired());
+                    }
+
                     String[] check = Config.ComplexSearch.bool() ? lb.code.split("drawflush display.\n") : new String[]{lb.code};
                     CompletableFuture.runAsync(() -> {
                         for (String c : check) {
