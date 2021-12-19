@@ -34,8 +34,8 @@ public class Main extends Plugin {
     private static MessageDigest messageDigest;
     private static final HashMap<String, BMIData> cache = new HashMap<>();
     private static long cacheExpireCheck = System.currentTimeMillis() + toHours;
-    private static class BMIData {
 
+    private static class BMIData {
         public final int httpResponse;
         public final JSONObject data;
         private final long expiration;
@@ -54,6 +54,7 @@ public class Main extends Plugin {
             return httpResponse == 200 || httpResponse == 404;
         }
     }
+
     private static long lastBroadcast = System.currentTimeMillis();
 
     public Main() {
@@ -129,9 +130,9 @@ public class Main extends Plugin {
     @Override
     public void registerServerCommands(CommandHandler handler) {
         handler.register("gibconfig", "[name] [value...]", "Configure server settings.", arg -> {
-            if(arg.length == 0){
+            if (arg.length == 0) {
                 info("All config values:");
-                for(Config c : Config.all){
+                for (Config c : Config.all) {
                     info("&lk| @: @", c.name(), "&lc&fi" + c.get());
                     info("&lk| | &lw" + c.description);
                     info("&lk|");
@@ -140,30 +141,30 @@ public class Main extends Plugin {
                 return;
             }
 
-            try{
+            try {
                 Config c = Config.valueOf(arg[0]);
-                if(arg.length == 1){
+                if (arg.length == 1) {
                     info("'@' is currently @.", c.name(), c.get());
-                }else{
+                } else {
                     if (arg[1].equals("default")) {
                         c.set(c.defaultValue);
-                    } else if(c.isBool()){
+                    } else if (c.isBool()) {
                         c.set(arg[1].equals("on") || arg[1].equals("true"));
-                    }else if(c.isNum()){
-                        try{
+                    } else if (c.isNum()) {
+                        try {
                             c.set(Integer.parseInt(arg[1]));
-                        }catch(NumberFormatException e){
+                        } catch (NumberFormatException e) {
                             err("Not a valid number: @", arg[1]);
                             return;
                         }
-                    }else if(c.isString()){
+                    } else if (c.isString()) {
                         c.set(arg[1].replace("\\n", "\n"));
                     }
 
                     info("@ set to @.", c.name(), c.get());
                     Core.settings.forceSave();
                 }
-            }catch(IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 err("Unknown config: '@'. Run the command with no arguments to get a list of valid configs.", arg[0]);
             }
         });
@@ -189,54 +190,55 @@ public class Main extends Plugin {
         public final String key, description;
         final Runnable changed;
 
-        Config(String description, Object def){
+        Config(String description, Object def) {
             this(description, def, null, null);
         }
 
-        Config(String description, Object def, String key){
+        Config(String description, Object def, String key) {
             this(description, def, key, null);
         }
 
-        Config(String description, Object def, Runnable changed){
+        Config(String description, Object def, Runnable changed) {
             this(description, def, null, changed);
         }
 
-        Config(String description, Object def, String key, Runnable changed){
+        Config(String description, Object def, String key, Runnable changed) {
             this.description = description;
             this.key = "gib_" + (key == null ? name() : key);
             this.defaultValue = def;
-            this.changed = changed == null ? () -> {} : changed;
+            this.changed = changed == null ? () -> {
+            } : changed;
         }
 
-        public boolean isNum(){
+        public boolean isNum() {
             return defaultValue instanceof Integer;
         }
 
-        public boolean isBool(){
+        public boolean isBool() {
             return defaultValue instanceof Boolean;
         }
 
-        public boolean isString(){
+        public boolean isString() {
             return defaultValue instanceof String;
         }
 
-        public Object get(){
+        public Object get() {
             return Core.settings.get(key, defaultValue);
         }
 
-        public boolean bool(){
-            return Core.settings.getBool(key, (Boolean)defaultValue);
+        public boolean bool() {
+            return Core.settings.getBool(key, (Boolean) defaultValue);
         }
 
-        public int num(){
-            return Core.settings.getInt(key, (Integer)defaultValue);
+        public int num() {
+            return Core.settings.getInt(key, (Integer) defaultValue);
         }
 
-        public String string(){
-            return Core.settings.getString(key, (String)defaultValue);
+        public String string() {
+            return Core.settings.getString(key, (String) defaultValue);
         }
 
-        public void set(Object value){
+        public void set(Object value) {
             Core.settings.put(key, value);
             changed.run();
         }
