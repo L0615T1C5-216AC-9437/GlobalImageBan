@@ -115,7 +115,7 @@ public class Main extends Plugin {
                                     }
                                 }
                             } catch (Exception e) {
-                                Log.err(Strings.neatError(e));
+                                e.printStackTrace();
                             }
                         }
                     });
