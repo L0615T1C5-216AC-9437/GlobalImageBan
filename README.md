@@ -5,7 +5,7 @@ A mindustry plugin that checks if a image is banned. No more nsfw (hopefully)
 
  **ATTENTION:**
 1) We need people to submit NSFW Schematics in the [BMI](https://discord.gg/v7SyYd2D3y) server (Only 18+ Allowed). The more submissions we get the more NSFW get blocked.
-2) The api runs with HTTP not HTSTPS, please refrain from attempting to access the api with https requests.
+2) The api uses HTTP, not HTTPS, please refrain from attempting to access the api with https requests.
 
 ## Installation Guide
 1. Download the latest mod verion in [#Releases](https://github.com/L0615T1C5-216AC-9437/MaxRateCalculator/releases).  
