@@ -1,3 +1,6 @@
+# THIS PLUGIN HAS BEEN DEPRECATED! THE API REQUIRED TO RUN THIS PLUGIN HS BEEN SHUT DOWN!
+## Use the newer version of this plugin found [here](https://github.com/L0615T1C5-216AC-9437/BannedMindustryImage).
+
 ![Discord](https://img.shields.io/discord/917595056075071488)
 [![Github All Releases](https://img.shields.io/github/downloads/L0615T1C5-216AC-9437/GlobalImageBan/total.svg)]()
 # GlobalImageBan
